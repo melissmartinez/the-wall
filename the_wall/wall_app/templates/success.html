@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+<body>
+    <a href="/logout">Logout</a>
+    <p>Welcome, {{user.first_name}}</p>
+    <div class="container">
+        <div class="text-danger">
+            {%if messages%}
+            <ul class="list-unstyled d-inline-block">
+                {%for message in messages%}
+                <li class="text-left">
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <form action="/new_message" method="post">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Post a message:</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="message"></textarea>
+                <button type="submit" class="btn btn-primary mb-2">submit</button>
+            </div>
+        </form>
+        {%for message in all_messages%}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{message.user_related.first_name}} {{message.user_related.last_name}}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{message.created_at}}</h6>
+                <p class="card-text">{{message.text}}</p>
+                {%if message.user_related.id == request.session.user_id%}
+                <form action="/message/{{message.id}}/delete" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger mb-2">Delete</button>
+                </form>
+                {%endif%}
+            </div>
+        </div>
+        {%for comment in message.message_comented.all%}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{comment.user_related.first_name}} {{comment.user_related.last_name}}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{comment.created_at}}</h6>
+                <p class="card-text">{{comment.text}}</p>
+                {%if comment.user_related.id == request.session.user_id%}
+                <form action="comment/{{comment.id}}/delete" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger mb-2">Delete</button>
+                </form>
+                {%endif%}
+            </div>
+        </div>
+        {%endfor%}
+        <form action="/new_comment/{{message.id}}" method="post">
+            {%csrf_token%}
+            <div class="form-group">
+                <label>Post a comment:</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="comment"></textarea>
+                <button type="submit" class="btn btn-primary mb-2">submit</button>
+            </div>
+        </form>
+        {%endfor%}
+    </div>
+</body>
+</html>
